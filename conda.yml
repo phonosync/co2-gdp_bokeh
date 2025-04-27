@@ -1,0 +1,11 @@
+name: co2gdpbokeh
+channels:
+  - conda-forge
+  - bokeh
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - pandas==2.2.0
+      - geopandas==1.0.1
+      - bokeh==3.6.2
