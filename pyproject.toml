@@ -1,0 +1,12 @@
+[project]
+name = "co2-gdp-bokeh"
+version = "0.1.0"
+description = "Bokeh dashboard for CO2 emissions and GDP data"
+requires-python = ">=3.12"
+dependencies = [
+    "bokeh>=3.8",
+    "geopandas>=1.1",
+    "numpy>=2.2",
+    "pandas>=2.2,<3",
+    "requests>=2.32",
+]

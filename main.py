@@ -21,22 +21,7 @@ url_co2gdp_data = 'https://drive.switch.ch/index.php/s/cxW0xrmQXdGL1VJ/download'
 url_geo_data = 'https://drive.switch.ch/index.php/s/bfb1TrwoIrXGAfM/download'
 
 # Load the dataset
-def load_data():
-    try:
-        return pd.read_csv(url_co2gdp_data) #, sep=';'
-    except Exception as e:
-        # Create a sample dataframe for demonstration if file is not found
-        sample_df = pd.DataFrame({
-            'country': ['United States', 'China', 'India', 'Germany', 'Brazil'],
-            'region': ['North America', 'Asia', 'Asia', 'Europe', 'South America'],
-            'year': [2000, 2000, 2000, 2000, 2000],
-            'co2': [20.2, 2.7, 0.9, 10.1, 1.9],
-            'gdp': [36330, 959, 452, 23635, 3739]
-        })
-        return sample_df  
-
-df = load_data()
-
+df = pd.read_csv(url_co2gdp_data)
 
 # --------------------------------------
 # Create title
@@ -1222,25 +1207,25 @@ color_bar = None
 # Function to load and merge world GeoJSON data
 def load_geo_data():
     """Load and prepare world GeoJSON data with proper handling of MultiPolygons"""
-    
+
     try:
         # Create a temporary directory to store the downloaded and extracted files
         with tempfile.TemporaryDirectory() as temp_dir:
             # Download the zip file
             response = requests.get(url_geo_data)
-            
+
             if response.status_code != 200:
                 raise Exception(f"Failed to download: Status code {response.status_code}")
-            
+
             # Save the zip file to the temporary directory
             zip_path = os.path.join(temp_dir, "geo_data.zip")
             with open(zip_path, "wb") as f:
                 f.write(response.content)
-            
+
             # Extract the zip file
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 zip_ref.extractall(temp_dir)
-            
+
             # Find the .shp file in the extracted contents
             shapefile_path = None
             for root, dirs, files in os.walk(temp_dir):
@@ -1250,22 +1235,22 @@ def load_geo_data():
                         break
                 if shapefile_path:
                     break
-            
+
             if not shapefile_path:
                 raise Exception("No .shp file found in the downloaded zip.")
-            
+
             # Load the shapefile with GeoPandas
             world = gpd.read_file(shapefile_path)
-            
+
             # Rename the country column if needed
             if 'NAME' in world.columns:
                 world = world.rename(columns={'NAME': 'country'})
             elif 'name' in world.columns:
                 world = world.rename(columns={'name': 'country'})
-            
+
     except Exception as e:
         raise Exception(f"Error loading geo data: {e}")
-    
+
     # Create empty lists for coordinates
     xs_list = []
     ys_list = []
@@ -1568,6 +1553,14 @@ byyear_section = column(
 # --------------------------------------
 # THE COMPLETE LAYOUT
 # --------------------------------------
+# Footer with data provenance
+footer = Div(text="""
+<hr style="width: 100vw; margin-left: calc(-50vw + 50%);">
+<p style="text-align: center;">CO2 Emissions and GDP Dashboard | Created with Bokeh</p>
+<p style="text-align: center; font-size: 0.9em; color: #666;">Data source: Our world in data - CO2 and Greenhouse Gas Emissions dataset<br>
+<a href="https://github.com/owid/co2-data/tree/master">https://github.com/owid/co2-data/tree/master</a></p>
+""", sizing_mode="stretch_width")
+
 # Put everything together
 dashboard = column(
     title,
@@ -1576,6 +1569,7 @@ dashboard = column(
     gdp_section,
     development_section,
     byyear_section,
+    footer,
     sizing_mode="stretch_width"
 )
 
